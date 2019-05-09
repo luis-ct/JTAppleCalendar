@@ -140,3 +140,18 @@ internal enum SelectionAction {
 internal enum ShouldSelectionAction {
     case shouldSelect, shouldDeselect
 }
+
+public enum Week {
+    /// Days of the week.
+    case five, seven
+
+    var value: Int {
+        switch self {
+        case .five:
+            return 5
+        case .seven:
+            return 7
+        }
+    }
+
+}

@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="14490.70" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina6_5" orientation="portrait">
+        <adaptation id="fullscreen"/>
+    </device>
+    <dependencies>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14490.49"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="MonthlyScheduleViewCell" id="pMg-0p-cVX" customClass="MonthlyScheduleViewCell" customModule="JTAppleCalendar_iOS_Example" customModuleProvider="target">
+            <rect key="frame" x="0.0" y="0.0" width="400" height="400"/>
+            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+            <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO">
+                <rect key="frame" x="0.0" y="0.0" width="400" height="400"/>
+                <autoresizingMask key="autoresizingMask"/>
+                <subviews>
+                    <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="5" translatesAutoresizingMaskIntoConstraints="NO" id="SP4-wn-eYM">
+                        <rect key="frame" x="20" y="19.999999999999996" width="360" height="45.666666666666657"/>
+                        <subviews>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Day" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="xnb-Tk-moA">
+                                <rect key="frame" x="0.0" y="0.0" width="360" height="20.333333333333332"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Month" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="TJo-Mw-lHW">
+                                <rect key="frame" x="0.0" y="25.333333333333336" width="360" height="20.333333333333336"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                        </subviews>
+                    </stackView>
+                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Wni-jM-xdG">
+                        <rect key="frame" x="399" y="0.0" width="1" height="400"/>
+                        <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <constraints>
+                            <constraint firstAttribute="width" constant="1" id="kWQ-V5-NxB"/>
+                        </constraints>
+                    </view>
+                </subviews>
+            </view>
+            <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+            <constraints>
+                <constraint firstAttribute="bottom" secondItem="Wni-jM-xdG" secondAttribute="bottom" id="5VS-M0-DaV"/>
+                <constraint firstAttribute="trailing" secondItem="Wni-jM-xdG" secondAttribute="trailing" id="ImO-YB-2l8"/>
+                <constraint firstAttribute="trailing" secondItem="SP4-wn-eYM" secondAttribute="trailing" constant="20" id="J3d-2P-twx"/>
+                <constraint firstItem="SP4-wn-eYM" firstAttribute="top" secondItem="pMg-0p-cVX" secondAttribute="top" constant="20" id="UhQ-N8-Jen"/>
+                <constraint firstAttribute="bottom" relation="greaterThanOrEqual" secondItem="SP4-wn-eYM" secondAttribute="bottom" constant="20" id="ZV2-gs-ggA"/>
+                <constraint firstItem="SP4-wn-eYM" firstAttribute="leading" secondItem="pMg-0p-cVX" secondAttribute="leading" constant="20" id="kOY-dg-6O7"/>
+                <constraint firstItem="Wni-jM-xdG" firstAttribute="top" secondItem="pMg-0p-cVX" secondAttribute="top" id="nKf-kg-K1l"/>
+            </constraints>
+            <viewLayoutGuide key="safeArea" id="u5F-E3-SF6"/>
+            <connections>
+                <outlet property="day" destination="xnb-Tk-moA" id="Mth-bh-0Cv"/>
+                <outlet property="month" destination="TJo-Mw-lHW" id="O6H-Pj-Xvg"/>
+                <outlet property="quotes" destination="SP4-wn-eYM" id="dVO-XX-P9N"/>
+                <outlet property="separator" destination="Wni-jM-xdG" id="pPq-DT-VaG"/>
+            </connections>
+        </collectionViewCell>
+    </objects>
+</document>

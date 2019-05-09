@@ -84,7 +84,9 @@ public struct ConfigurationParameters {
     /// or if it can flow into another months section. This value is ignored
     /// if your calendar has registered headers
     var hasStrictBoundaries: Bool
-    
+
+    var week: Week
+
     /// init-function
     public init(startDate: Date,
                 endDate: Date,
@@ -93,7 +95,8 @@ public struct ConfigurationParameters {
                 generateInDates: InDateCellGeneration = .forAllMonths,
                 generateOutDates: OutDateCellGeneration = .tillEndOfGrid,
                 firstDayOfWeek: DaysOfWeek? = nil,
-                hasStrictBoundaries: Bool? = nil) {
+                hasStrictBoundaries: Bool? = nil,
+                week: Week = .seven) {
         self.startDate = startDate
         self.endDate = endDate
 
@@ -117,6 +120,8 @@ public struct ConfigurationParameters {
         } else {
             self.firstDayOfWeek = DaysOfWeek(rawValue: calendar.firstWeekday) ?? .sunday
         }
+
+        self.week = week
     }
 }
 
@@ -132,7 +137,7 @@ public struct MonthSize {
     }
 }
 
-struct CalendarData {
+public struct CalendarData {
     var months: [Month]
     var totalSections: Int
     var sectionToMonthMap: [Int: Int]
@@ -192,16 +197,6 @@ public struct Month {
 
         return IndexPath(item: itemIndex, section: externalSection)
     }
-    
-    private func sectionFor(day: Int) -> (externalSection: Int, internalSection: Int) {
-        var variableNumber = day
-        let possibleSection = sections.firstIndex {
-            let retval = variableNumber + inDates <= $0
-            variableNumber -= $0
-            return retval
-            }!
-        return (sectionIndexMaps.key(for: possibleSection)!, possibleSection)
-    }
 
     // Return the number of rows for a section in the month
     func numberOfRows(for section: Int, developerSetRows: Int) -> Int {
@@ -246,9 +241,27 @@ public struct Month {
         }
         return (startIndex: startIndex, endIndex: endIndex)
     }
+
+    // MARK: - Private
+
+    private func sectionFor(day: Int) -> (externalSection: Int, internalSection: Int) {
+        var variableNumber = day
+        let possibleSection = sections.firstIndex {
+            let retval = variableNumber + inDates <= $0
+            variableNumber -= $0
+            return retval
+            }!
+        return (sectionIndexMaps.key(for: possibleSection)!, possibleSection)
+    }
+
+}
+
+extension Month: Equatable {
+
 }
 
 struct JTAppleDateConfigGenerator {
+
     func setupMonthInfoDataForStartAndEndDate(_ parameters: ConfigurationParameters)
         -> (months: [Month], monthMap: [Int: Int], totalSections: Int, totalDays: Int) {
             let differenceComponents = parameters.calendar.dateComponents([.month], from: parameters.startDate, to: parameters.endDate)
@@ -271,35 +284,40 @@ struct JTAppleDateConfigGenerator {
             
             for monthIndex in 0 ..< numberOfMonths {
                 if let currentMonthDate = parameters.calendar.date(byAdding: .month, value: monthIndex, to: parameters.startDate) {
-                    var numberOfDaysInMonthVariable = parameters.calendar.range(of: .day, in: .month, for: currentMonthDate)!.count
-                    let numberOfDaysInMonthFixed = numberOfDaysInMonthVariable
+                    let (sevenNumberOfDaysInMonth, fiveNumberOfDaysInMonth) = getMonthDays(calendar: parameters.calendar, week: parameters.week, date: currentMonthDate)
+
+                    var numberOfDaysInMonthVariable = fiveNumberOfDaysInMonth
                     var numberOfRowsToGenerateForCurrentMonth = 0
                     var numberOfPreDatesForThisMonth = 0
                     let predatesGeneration = parameters.generateInDates
                     if predatesGeneration != .off {
-                        numberOfPreDatesForThisMonth = numberOfInDatesForMonth(currentMonthDate, firstDayOfWeek: parameters.firstDayOfWeek, calendar: parameters.calendar)
-                        numberOfDaysInMonthVariable += numberOfPreDatesForThisMonth
+                        numberOfPreDatesForThisMonth = numberOfInDatesForMonth(firstDateOfMonth: currentMonthDate,
+                                                                               firstDayOfWeek: parameters.firstDayOfWeek,
+                                                                               calendar: parameters.calendar,
+                                                                               week: parameters.week)
+                        
                         if predatesGeneration == .forFirstMonthOnly && monthIndex != 0 {
-                            numberOfDaysInMonthVariable -= numberOfPreDatesForThisMonth
                             numberOfPreDatesForThisMonth = 0
+                        } else {
+                            numberOfDaysInMonthVariable += numberOfPreDatesForThisMonth
                         }
                     }
                     
                     if parameters.generateOutDates == .tillEndOfGrid {
                         numberOfRowsToGenerateForCurrentMonth = maxNumberOfRowsPerMonth
                     } else {
-                        let actualNumberOfRowsForThisMonth = Int(ceil(Float(numberOfDaysInMonthVariable) / Float(maxNumberOfDaysInWeek)))
+                        let actualNumberOfRowsForThisMonth = Int(ceil(Float(numberOfDaysInMonthVariable) / Float(parameters.week.value)))
                         numberOfRowsToGenerateForCurrentMonth = actualNumberOfRowsForThisMonth
                     }
+                    
                     var numberOfPostDatesForThisMonth = 0
-                    let postGeneration = parameters.generateOutDates
-                    switch postGeneration {
+                    switch parameters.generateOutDates {
                     case .tillEndOfGrid, .tillEndOfRow:
                         numberOfPostDatesForThisMonth =
-                            maxNumberOfDaysInWeek * numberOfRowsToGenerateForCurrentMonth - (numberOfDaysInMonthFixed + numberOfPreDatesForThisMonth)
+                            parameters.week.value * numberOfRowsToGenerateForCurrentMonth - (fiveNumberOfDaysInMonth + numberOfPreDatesForThisMonth)
                         numberOfDaysInMonthVariable += numberOfPostDatesForThisMonth
                     default:
-                        break
+                        ()
                     }
                     var sectionsForTheMonth: [Int] = []
                     var sectionIndexMaps: [Int: Int] = [:]
@@ -310,18 +328,18 @@ struct JTAppleDateConfigGenerator {
                         }
                         monthIndexMap[section] = monthIndex
                         sectionIndexMaps[section] = index
-                        var numberOfDaysInCurrentSection = numberOfRowsPerSectionThatUserWants * maxNumberOfDaysInWeek
+                        var numberOfDaysInCurrentSection = numberOfRowsPerSectionThatUserWants * parameters.week.value
                         if numberOfDaysInCurrentSection > numberOfDaysInMonthVariable {
                             numberOfDaysInCurrentSection = numberOfDaysInMonthVariable
-                            // assert(false)
                         }
                         totalDays += numberOfDaysInCurrentSection
                         sectionsForTheMonth.append(numberOfDaysInCurrentSection)
                         numberOfDaysInMonthVariable -= numberOfDaysInCurrentSection
                         section += 1
                     }
+
                     monthArray.append(Month(
-                        startDayIndex: startIndexForMonth,
+                        startDayIndex: startIndexForMonth + getStartIndex(date: currentMonthDate, calendar: parameters.calendar, week: parameters.week),
                         startCellIndex: startCellIndexForMonth,
                         sections: sectionsForTheMonth,
                         inDates: numberOfPreDatesForThisMonth,
@@ -329,10 +347,10 @@ struct JTAppleDateConfigGenerator {
                         sectionIndexMaps: sectionIndexMaps,
                         rows: numberOfRowsToGenerateForCurrentMonth,
                         name: allMonthsOfYear[monthNameIndex],
-                        numberOfDaysInMonth: numberOfDaysInMonthFixed
+                        numberOfDaysInMonth: fiveNumberOfDaysInMonth
                     ))
-                    startIndexForMonth += numberOfDaysInMonthFixed
-                    startCellIndexForMonth += numberOfDaysInMonthFixed + numberOfPreDatesForThisMonth + numberOfPostDatesForThisMonth
+                    startIndexForMonth += sevenNumberOfDaysInMonth
+                    startCellIndexForMonth += fiveNumberOfDaysInMonth + numberOfPreDatesForThisMonth + numberOfPostDatesForThisMonth
                     
                     // Increment month name
                     monthNameIndex += 1
@@ -341,26 +359,107 @@ struct JTAppleDateConfigGenerator {
             }
             return (monthArray, monthIndexMap, section, totalDays)
     }
-    
-    private func numberOfInDatesForMonth(_ date: Date, firstDayOfWeek: DaysOfWeek, calendar: Calendar) -> Int {
+
+    // MARK: - Private
+
+    private func numberOfInDatesForMonth(firstDateOfMonth: Date, firstDayOfWeek: DaysOfWeek, calendar: Calendar, week: Week) -> Int {
+        let normalizedDate = normalize(date: firstDateOfMonth, calendar: calendar, week: week)
+
         let firstDayCalValue: Int
         switch firstDayOfWeek {
-        case .monday: firstDayCalValue = 6
-        case .tuesday: firstDayCalValue = 5
-        case .wednesday: firstDayCalValue = 4
-        case .thursday: firstDayCalValue = 10
-        case .friday: firstDayCalValue = 9
-        case .saturday: firstDayCalValue = 8
-        default: firstDayCalValue = 7
+        case .monday: firstDayCalValue = (week == .seven) ? 6 : 4
+        case .tuesday: firstDayCalValue = (week == .seven) ? 5 : 3
+        case .wednesday: firstDayCalValue = (week == .seven) ? 4 : 2
+        case .thursday: firstDayCalValue = (week == .seven) ? 10 : 8
+        case .friday: firstDayCalValue = (week == .seven) ? 9 : 7
+        case .saturday: firstDayCalValue = (week == .seven) ? 8 : 6
+        case .sunday: firstDayCalValue = (week == .seven) ? 7 : 5
         }
-        
-        var firstWeekdayOfMonthIndex = calendar.component(.weekday, from: date)
+
+        var firstWeekdayOfMonthIndex = calendar.component(.weekday, from: normalizedDate)
         firstWeekdayOfMonthIndex -= 1
         // firstWeekdayOfMonthIndex should be 0-Indexed
         // push it modularly so that we take it back one day so that the
         // first day is Monday instead of Sunday which is the default
-        return (firstWeekdayOfMonthIndex + firstDayCalValue) % maxNumberOfDaysInWeek
+        let inDates = (firstWeekdayOfMonthIndex + firstDayCalValue) % week.value
+        return inDates
     }
+
+    /*
+     *  @Return: monday date if week is five and date is saturday or sunday
+     */
+    private func normalize(date: Date, calendar: Calendar, week: Week) -> Date {
+        var newDate = date
+        switch week {
+        case .five:
+            let firstWeekdayOfMonthIndex = calendar.component(.weekday, from: date)
+            if firstWeekdayOfMonthIndex == 1 {
+                // Sunday
+                newDate = calendar.date(byAdding: .day, value: 1, to: date) ?? date
+            } else if firstWeekdayOfMonthIndex == 7 {
+                // Saturday
+                newDate = calendar.date(byAdding: .day, value: 2, to: date) ?? date
+            }
+        case .seven:
+            ()
+        }
+
+        return newDate
+    }
+
+    /*
+     *  @Return:
+     */
+    private func getStartIndex(date: Date, calendar: Calendar, week: Week) -> Int {
+        switch week {
+        case .five:
+            let firstWeekdayOfMonthIndex = calendar.component(.weekday, from: date)
+            if firstWeekdayOfMonthIndex == 1 {
+                // Sunday
+                return 1
+            } else if firstWeekdayOfMonthIndex == 7 {
+                // Saturday
+                return 2
+            }
+        case .seven:
+            ()
+        }
+
+        return 0
+    }
+
+    /*
+     *  It removes weekend days if week is five
+     *
+     *  @Return: total days number for one month.
+     */
+    private func getMonthDays(calendar: Calendar, week: Week, date: Date) -> (seven: Int, five: Int) {
+        switch week {
+        case .five:
+            var sevenNumber = 0
+            var fiveNumber = 0
+            var day: Int = 0
+
+            while true {
+                let newDate = calendar.date(byAdding: .day, value: day, to: date) ?? date
+                if calendar.compare(newDate, to: date, toGranularity: .month) != .orderedSame {
+                    break
+                } else {
+                    sevenNumber += 1
+                    if calendar.isDateInWeekend(newDate) == false {
+                        fiveNumber += 1
+                    }
+                }
+                day += 1
+            }
+
+            return (sevenNumber, fiveNumber)
+        case .seven:
+            let numberOfDays = calendar.range(of: .day, in: .month, for: date)!.count
+            return (numberOfDays, numberOfDays)
+        }
+    }
+
 }
 
 /// Contains the information for visible dates of the calendar.

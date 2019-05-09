@@ -89,8 +89,9 @@ class JTAppleCalendarLayout: UICollectionViewLayout, JTAppleCalendarLayoutProtoc
         
         // Default Item height and width
         var height: CGFloat = collectionView!.bounds.size.height / CGFloat(cachedConfiguration.numberOfRows)
-        var width: CGFloat = collectionView!.bounds.size.width / CGFloat(maxNumberOfDaysInWeek)
-        
+//        var width: CGFloat = collectionView!.bounds.size.width / CGFloat(maxNumberOfDaysInWeek)
+        var width: CGFloat = collectionView!.bounds.size.width / CGFloat(cachedConfiguration.week.value)
+
         if shouldUseUserItemSizeInsteadOfDefault { // If delegate item size was set
             if scrollDirection == .horizontal {
                 width = delegate.cellSize
@@ -167,7 +168,8 @@ class JTAppleCalendarLayout: UICollectionViewLayout, JTAppleCalendarLayoutProtoc
         allowsDateCellStretching = delegate.allowsDateCellStretching
         monthInfo = delegate.monthInfo
         scrollDirection = delegate.scrollDirection
-        maxMissCount = scrollDirection == .horizontal ? maxNumberOfRowsPerMonth : maxNumberOfDaysInWeek
+//        maxMissCount = scrollDirection == .horizontal ? maxNumberOfRowsPerMonth : maxNumberOfDaysInWeek
+        maxMissCount = scrollDirection == .horizontal ? maxNumberOfRowsPerMonth : delegate._cachedConfiguration.week.value
         minimumInteritemSpacing = delegate.minimumInteritemSpacing
         minimumLineSpacing = delegate.minimumLineSpacing
         sectionInset = delegate.sectionInset
@@ -198,8 +200,9 @@ class JTAppleCalendarLayout: UICollectionViewLayout, JTAppleCalendarLayoutProtoc
     func configureHorizontalLayout() {
         var virtualSection = 0
         var totalDayCounter = 0
-        let fullSection = numberOfRows * maxNumberOfDaysInWeek
-        
+//        let fullSection = numberOfRows * maxNumberOfDaysInWeek
+        let fullSection = numberOfRows * delegate._cachedConfiguration.week.value
+
         xCellOffset = sectionInset.left
         endSeparator = sectionInset.left + sectionInset.right
         
@@ -222,7 +225,8 @@ class JTAppleCalendarLayout: UICollectionViewLayout, JTAppleCalendarLayoutProtoc
                     xCellOffset += attribute.width
                     
                     if strictBoundaryRulesShouldApply {
-                        if dayCounter == numberOfDaysInCurrentSection || dayCounter % maxNumberOfDaysInWeek == 0 {
+//                        if dayCounter == numberOfDaysInCurrentSection || dayCounter % maxNumberOfDaysInWeek == 0 {
+                        if dayCounter == numberOfDaysInCurrentSection || dayCounter % delegate._cachedConfiguration.week.value == 0 {
                             // We are at the last item in the section
                             // && if we have headers
                             xCellOffset = sectionInset.left
@@ -241,7 +245,8 @@ class JTAppleCalendarLayout: UICollectionViewLayout, JTAppleCalendarLayoutProtoc
                                 contentWidth += (attribute.width * 7) + endSeparator
                                 sectionSize.append(contentWidth)
                             }
-                            if totalDayCounter % maxNumberOfDaysInWeek == 0 {
+//                            if totalDayCounter % maxNumberOfDaysInWeek == 0 {
+                            if totalDayCounter % delegate._cachedConfiguration.week.value == 0 {
                                 xCellOffset = sectionInset.left
                                 yCellOffset += attribute.height
                             }
@@ -264,8 +269,9 @@ class JTAppleCalendarLayout: UICollectionViewLayout, JTAppleCalendarLayoutProtoc
     func configureVerticalLayout() {
         var virtualSection = 0
         var totalDayCounter = 0
-        let fullSection = numberOfRows * maxNumberOfDaysInWeek
-        
+//        let fullSection = numberOfRows * maxNumberOfDaysInWeek
+        let fullSection = numberOfRows * delegate._cachedConfiguration.week.value
+
         xCellOffset   = sectionInset.left
         yCellOffset   = sectionInset.top
         contentHeight = sectionInset.top
@@ -291,7 +297,8 @@ class JTAppleCalendarLayout: UICollectionViewLayout, JTAppleCalendarLayoutProtoc
                     xCellOffset += attribute.width
                     
                     if strictBoundaryRulesShouldApply {
-                        if dayCounter == numberOfDaysInCurrentSection || dayCounter % maxNumberOfDaysInWeek == 0 {
+//                        if dayCounter == numberOfDaysInCurrentSection || dayCounter % maxNumberOfDaysInWeek == 0 {
+                        if dayCounter == numberOfDaysInCurrentSection || dayCounter % delegate._cachedConfiguration.week.value == 0 {
                             // We are at the last item in the
                             // section && if we have headers
                             
@@ -320,7 +327,8 @@ class JTAppleCalendarLayout: UICollectionViewLayout, JTAppleCalendarLayoutProtoc
                                 sectionSize.append(contentHeight - sectionInset.top)
                             }
                             
-                            if totalDayCounter % maxNumberOfDaysInWeek == 0 {
+//                            if totalDayCounter % maxNumberOfDaysInWeek == 0 {
+                            if totalDayCounter % delegate._cachedConfiguration.week.value == 0 {
                                 xCellOffset = sectionInset.left
                                 yCellOffset += attribute.height
                             }
@@ -447,6 +455,7 @@ class JTAppleCalendarLayout: UICollectionViewLayout, JTAppleCalendarLayoutProtoc
         
         let size = sizeForitemAtIndexPath(item, section: section)
         let y = scrollDirection == .horizontal ? yCellOffset + sectionInset.top : yCellOffset
+        print("SIZE \(size) FOR ITEM: \(item) IN SECTION: \(section)")
         return (item, section, xCellOffset + xStride, y, size.width, size.height)
     }
     
@@ -590,7 +599,8 @@ class JTAppleCalendarLayout: UICollectionViewLayout, JTAppleCalendarLayoutProtoc
     func sizeOfContentForSection(_ section: Int) -> CGFloat {
         switch scrollDirection {
         case .horizontal:
-            return cellCache[section]![0].width * CGFloat(maxNumberOfDaysInWeek) + sectionInset.left + sectionInset.right
+//            return cellCache[section]![0].width * CGFloat(maxNumberOfDaysInWeek) + sectionInset.left + sectionInset.right
+            return cellCache[section]![0].width * CGFloat(delegate._cachedConfiguration.week.value) + sectionInset.left + sectionInset.right
         case .vertical:
             fallthrough
         default:
