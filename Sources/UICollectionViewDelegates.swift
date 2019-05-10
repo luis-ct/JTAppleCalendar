@@ -70,7 +70,6 @@ extension JTAppleCalendarView: UICollectionViewDelegate, UICollectionViewDataSou
     /// Asks your data sourceobject for the number of sections in
     /// the collection view. The number of sections in collectionView.
     public func numberOfSections(in collectionView: UICollectionView) -> Int {
-        print("SECTIONS: \(monthMap.count)")
         return monthMap.count
     }
     
@@ -82,7 +81,6 @@ extension JTAppleCalendarView: UICollectionViewDelegate, UICollectionViewDataSou
             developerError(string: "cellCacheSection does not exist.")
             return 0
         }
-        print("ITEMS \(count) IN \(section)")
         return count
     }
     

@@ -256,6 +256,7 @@ extension JTAppleCalendarView {
                 newDateBoundary.generateOutDates    != _cachedConfiguration.generateOutDates ||
                 newDateBoundary.firstDayOfWeek      != _cachedConfiguration.firstDayOfWeek ||
                 newDateBoundary.hasStrictBoundaries != _cachedConfiguration.hasStrictBoundaries ||
+                newDateBoundary.week != _cachedConfiguration.week ||
                 // Other layout information were changed
                 minimumInteritemSpacing  != calendarLayout.minimumInteritemSpacing ||
                 minimumLineSpacing       != calendarLayout.minimumLineSpacing ||

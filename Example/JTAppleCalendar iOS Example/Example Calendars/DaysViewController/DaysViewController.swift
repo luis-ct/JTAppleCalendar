@@ -13,6 +13,7 @@ class DaysViewController: UIViewController {
 
     @IBOutlet weak var calendarView: JTAppleCalendarView!
     @IBOutlet weak var monthLabel: UILabel!
+    @IBOutlet weak var segmented: UISegmentedControl!
 
     private var numberOfRows = 7
     private let formatter = DateFormatter()
@@ -21,17 +22,23 @@ class DaysViewController: UIViewController {
     private var generateOutDates: OutDateCellGeneration = .off
     private var hasStrictBoundaries = true
 
+    private var firstDatOfWeek :DaysOfWeek = .monday
+    private var week: Week = .seven
+    private var selectedSegmentIndex = 1
+    private var visibleDates: DateSegmentInfo?
+
     override func viewDidLoad() {
         super.viewDidLoad()
 
         // Do any additional setup after loading the view.
+        calendarView.register(UINib(nibName: "MonthlyScheduleViewCell", bundle: Bundle.main), forCellWithReuseIdentifier: "MonthlyScheduleViewCell")
         calendarView.calendarDelegate = self
         calendarView.calendarDataSource = self
-        calendarView.register(UINib(nibName: "MonthlyScheduleViewCell", bundle: Bundle.main), forCellWithReuseIdentifier: "MonthlyScheduleViewCell")
 
-//        self.calendarView.visibleDates {[unowned self] (visibleDates: DateSegmentInfo) in
-//            self.setupViewsOfCalendar(from: visibleDates)
-//        }
+        reloadCalendar(for: visibleDates?.monthDates.first?.date ?? Date())
+
+        segmented.addTarget(self, action: #selector(valueChanged), for: .valueChanged)
+        segmented.selectedSegmentIndex = selectedSegmentIndex
 
         setupScrollMode()
     }
@@ -41,6 +48,7 @@ class DaysViewController: UIViewController {
     }
 
     private func setupViewsOfCalendar(from visibleDates: DateSegmentInfo) {
+        self.visibleDates = visibleDates
         guard let startDate = visibleDates.monthDates.first?.date else {
             return
         }
@@ -52,19 +60,27 @@ class DaysViewController: UIViewController {
         monthLabel.text = monthName + " " + String(year)
     }
 
+    @objc private func valueChanged() {
+        switch segmented.selectedSegmentIndex {
+        case 0:
+            self.week = .five
+        case 1:
+            self.week = .seven
+        default:
+            ()
+        }
+        reloadCalendar(for: visibleDates?.monthDates.first?.date ?? Date())
+    }
+
     // MARK: - Cell
 
-    func configureVisibleCell(myCustomCell: MonthlyScheduleViewCell, cellState: CellState, date: Date) {
+    private func configureVisibleCell(myCustomCell: MonthlyScheduleViewCell, cellState: CellState, date: Date) {
         let day = Calendar.current.component(.day, from: date)
-
-        let weekday = Calendar.current.component(.weekday, from: date)
 
         let formatter = DateFormatter()
         formatter.dateFormat = "MMM"
         let month = formatter.string(from: date)
-
-        print("\(month) \(cellState.text)")
-//        print("\(month) \(day)")
+//        print("\(month) \(cellState.text)")
 
         if testCalendar.isDateInToday(date) {
             myCustomCell.day.backgroundColor = .red
@@ -97,10 +113,48 @@ class DaysViewController: UIViewController {
         }
     }
 
-    private func handleCellConfiguration(cell: MonthlyScheduleViewCell?, cellState: CellState) {
-//        handleCellSelection(view: cell, cellState: cellState)
+    private func handleCellConfiguration(cell: JTAppleCell?, cellState: CellState) {
+        handleCellSelection(view: cell, cellState: cellState)
 //        handleCellTextColor(view: cell, cellState: cellState)
 //        prePostVisibility?(cellState, cell as? CellView)
+    }
+
+    // Function to handle the calendar selection
+    private func handleCellSelection(view: JTAppleCell?, cellState: CellState) {
+        guard let myCustomCell = view as? CellView else {return }
+//        switch cellState.selectedPosition() {
+//        case .full:
+//            myCustomCell.backgroundColor = .green
+//        case .left:
+//            myCustomCell.backgroundColor = .yellow
+//        case .right:
+//            myCustomCell.backgroundColor = .red
+//        case .middle:
+//            myCustomCell.backgroundColor = .blue
+//        case .none:
+//            myCustomCell.backgroundColor = nil
+//        }
+
+        if cellState.isSelected {
+            myCustomCell.selectedView.layer.cornerRadius =  13
+            myCustomCell.selectedView.isHidden = false
+        } else {
+            myCustomCell.selectedView.isHidden = true
+        }
+    }
+
+    private func reloadCalendar(for date: Date) {
+        calendarView.reloadData()
+        calendarView.scrollToDate(date, animateScroll: false, preferredScrollPosition: nil, extraAddedOffset: 0) { [weak self] in
+
+        }
+    }
+
+    private func reloadCalendar() {
+        self.visibleDates = calendarView.visibleDates()
+        if let visibleDates = self.visibleDates {
+            setupViewsOfCalendar(from: visibleDates)
+        }
     }
 
 }
@@ -123,9 +177,9 @@ extension DaysViewController: JTAppleCalendarViewDataSource {
                                                  calendar: testCalendar,
                                                  generateInDates: generateInDates,
                                                  generateOutDates: generateOutDates,
-                                                 firstDayOfWeek: .monday,
+                                                 firstDayOfWeek: firstDatOfWeek,
                                                  hasStrictBoundaries: hasStrictBoundaries,
-                                                 week: .five)
+                                                 week: week)
         return parameters
     }
 
@@ -145,40 +199,21 @@ extension DaysViewController: JTAppleCalendarViewDelegate {
         return myCustomCell
     }
 
-//    func calendar(_ calendar: JTAppleCalendarView, didDeselectDate date: Date, cell: JTAppleCell?, cellState: CellState) {
-//        handleCellConfiguration(cell: cell, cellState: cellState)
-//    }
-//
-//    func calendar(_ calendar: JTAppleCalendarView, didSelectDate date: Date, cell: JTAppleCell?, cellState: CellState) {
-//        handleCellConfiguration(cell: cell, cellState: cellState)
-//    }
-//
-//    func calendar(_ calendar: JTAppleCalendarView, didScrollToDateSegmentWith visibleDates: DateSegmentInfo) {
-//        self.setupViewsOfCalendar(from: visibleDates)
-//    }
+    func calendar(_ calendar: JTAppleCalendarView, didDeselectDate date: Date, cell: JTAppleCell?, cellState: CellState) {
+        handleCellConfiguration(cell: cell, cellState: cellState)
+    }
 
-//    func calendar(_ calendar: JTAppleCalendarView, headerViewForDateRange range: (start: Date, end: Date), at indexPath: IndexPath) -> JTAppleCollectionReusableView {
-//        let date = range.start
-//        let month = testCalendar.component(.month, from: date)
-//
-//        let header: JTAppleCollectionReusableView
-//        if month % 2 > 0 {
-//            header = calendar.dequeueReusableJTAppleSupplementaryView(withReuseIdentifier: "WhiteSectionHeaderView", for: indexPath)
-//            (header as! WhiteSectionHeaderView).title.text = formatter.string(from: date)
-//        } else {
-//            header = calendar.dequeueReusableJTAppleSupplementaryView(withReuseIdentifier: "PinkSectionHeaderView", for: indexPath)
-//            (header as! PinkSectionHeaderView).title.text = formatter.string(from: date)
-//        }
-//        return header
-//    }
+    func calendar(_ calendar: JTAppleCalendarView, didSelectDate date: Date, cell: JTAppleCell?, cellState: CellState) {
+        handleCellConfiguration(cell: cell, cellState: cellState)
+    }
+
+    func calendar(_ calendar: JTAppleCalendarView, didScrollToDateSegmentWith visibleDates: DateSegmentInfo) {
+        self.setupViewsOfCalendar(from: visibleDates)
+    }
 
     func sizeOfDecorationView(indexPath: IndexPath) -> CGRect {
         let stride = calendarView.frame.width * CGFloat(indexPath.section)
         return CGRect(x: stride + 5, y: 5, width: calendarView.frame.width - 10, height: calendarView.frame.height - 10)
     }
-
-//    func calendarSizeForMonths(_ calendar: JTAppleCalendarView?) -> MonthSize? {
-//        return nil
-//    }
 
 }

@@ -22,7 +22,6 @@
 //  THE SOFTWARE.
 //
 
-let maxNumberOfDaysInWeek = 7 // Should not be changed
 let maxNumberOfRowsPerMonth = 6 // Should not be changed
 let developerErrorMessage = "There was an error in this code section. Please contact the developer on GitHub"
 let decorationViewID = "Are you ready for the life after this one?"

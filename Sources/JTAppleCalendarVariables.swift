@@ -90,6 +90,5 @@ extension JTAppleCalendarView {
     var startDateCache: Date         { return _cachedConfiguration.startDate }
     var endDateCache: Date           { return _cachedConfiguration.endDate }
     var calendar: Calendar           { return _cachedConfiguration.calendar }
-    var week: Week           { return _cachedConfiguration.week }
 
 }

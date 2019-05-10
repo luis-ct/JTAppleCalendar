@@ -340,9 +340,7 @@ extension JTAppleCalendarView {
             dateBelongsTo: dateBelongsTo,
             date: date,
             day: dayOfWeek,
-//            row: { return indexPath.item / maxNumberOfDaysInWeek },
             row: { return indexPath.item / self._cachedConfiguration.week.value },
-//            column: { return indexPath.item % maxNumberOfDaysInWeek },
             column: { return indexPath.item % self._cachedConfiguration.week.value },
             dateSection: { [unowned self] in
                 return self.monthInfoFromSection(indexPath.section)!
@@ -434,10 +432,6 @@ extension JTAppleCalendarView {
             }
         }
         guard let validDate = date else { return nil }
-
-        print(indexPath)
-        print(indexPath.item)
-        print(validDate)
 
         return (validDate, dateOwner)
     }

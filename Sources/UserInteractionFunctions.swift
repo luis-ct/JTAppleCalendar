@@ -36,7 +36,6 @@ extension JTAppleCalendarView {
         guard let section = currentSection() else {
             return nil
         }
-//        let convertedRow = (row * maxNumberOfDaysInWeek) + column
         let convertedRow = (row * _cachedConfiguration.week.value) + column
         let indexPathToFind = IndexPath(item: convertedRow, section: section)
         if let date = dateOwnerInfoFromPath(indexPathToFind) {

@@ -732,22 +732,34 @@
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
+                            <segmentedControl opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="plain" selectedSegmentIndex="0" translatesAutoresizingMaskIntoConstraints="NO" id="49q-CE-FNB">
+                                <rect key="frame" x="503.5" y="86.5" width="105" height="29"/>
+                                <segments>
+                                    <segment title="Five"/>
+                                    <segment title="Seven"/>
+                                </segments>
+                            </segmentedControl>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <constraints>
                             <constraint firstItem="cWf-zV-HQC" firstAttribute="top" secondItem="FQ7-B8-AOQ" secondAttribute="bottom" constant="20" id="Cu7-wM-HhO"/>
+                            <constraint firstItem="49q-CE-FNB" firstAttribute="centerY" secondItem="Evc-4N-Dg0" secondAttribute="centerY" id="H6n-o7-2iR"/>
                             <constraint firstAttribute="trailing" secondItem="Evc-4N-Dg0" secondAttribute="trailing" constant="20" id="dGi-Hm-Ysb"/>
                             <constraint firstItem="Evc-4N-Dg0" firstAttribute="leading" secondItem="U51-9H-7LD" secondAttribute="leading" constant="20" id="iHt-k9-lyy"/>
                             <constraint firstItem="Evc-4N-Dg0" firstAttribute="top" secondItem="s0I-wr-2bc" secondAttribute="bottom" constant="20" id="iqj-BF-tS3"/>
                             <constraint firstAttribute="trailing" secondItem="FQ7-B8-AOQ" secondAttribute="trailing" constant="20" id="mqY-fW-7wf"/>
+                            <constraint firstItem="49q-CE-FNB" firstAttribute="centerX" secondItem="U51-9H-7LD" secondAttribute="centerX" id="muv-XO-Elm"/>
                             <constraint firstItem="FQ7-B8-AOQ" firstAttribute="leading" secondItem="U51-9H-7LD" secondAttribute="leading" constant="20" id="qSi-MS-n0A"/>
                             <constraint firstItem="FQ7-B8-AOQ" firstAttribute="top" secondItem="Evc-4N-Dg0" secondAttribute="bottom" constant="5" id="tiB-Q1-M5q"/>
+                            <constraint firstItem="49q-CE-FNB" firstAttribute="top" relation="greaterThanOrEqual" secondItem="s0I-wr-2bc" secondAttribute="bottom" constant="10" id="u99-CW-iAu"/>
+                            <constraint firstItem="49q-CE-FNB" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="U51-9H-7LD" secondAttribute="leading" constant="10" id="y2N-27-jZN"/>
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" id="k1e-XD-oPk"/>
                     <connections>
                         <outlet property="calendarView" destination="FQ7-B8-AOQ" id="ARE-sY-nax"/>
                         <outlet property="monthLabel" destination="Evc-4N-Dg0" id="XmL-ny-zZo"/>
+                        <outlet property="segmented" destination="49q-CE-FNB" id="3Zl-dJ-0jL"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="cU6-Gu-Jqh" userLabel="First Responder" sceneMemberID="firstResponder"/>
