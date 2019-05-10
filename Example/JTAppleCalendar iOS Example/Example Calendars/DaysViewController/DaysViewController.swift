@@ -34,14 +34,23 @@ class DaysViewController: UIViewController {
         calendarView.register(UINib(nibName: "MonthlyScheduleViewCell", bundle: Bundle.main), forCellWithReuseIdentifier: "MonthlyScheduleViewCell")
         calendarView.calendarDelegate = self
         calendarView.calendarDataSource = self
+        calendarView.minimumLineSpacing = 0
 
-        reloadCalendar(for: visibleDates?.monthDates.first?.date ?? Date())
+        reloadCalendar()
 
         segmented.addTarget(self, action: #selector(valueChanged), for: .valueChanged)
         segmented.selectedSegmentIndex = selectedSegmentIndex
 
         setupScrollMode()
     }
+
+    override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
+        super.viewWillTransition(to: size, with: coordinator)
+
+        reloadCalendar()
+    }
+
+    // MARK: - Private
 
     private func setupScrollMode() {
         calendarView.scrollingMode = .stopAtEachSection
@@ -69,7 +78,7 @@ class DaysViewController: UIViewController {
         default:
             ()
         }
-        reloadCalendar(for: visibleDates?.monthDates.first?.date ?? Date())
+        reloadCalendar()
     }
 
     // MARK: - Cell
@@ -115,8 +124,6 @@ class DaysViewController: UIViewController {
 
     private func handleCellConfiguration(cell: JTAppleCell?, cellState: CellState) {
         handleCellSelection(view: cell, cellState: cellState)
-//        handleCellTextColor(view: cell, cellState: cellState)
-//        prePostVisibility?(cellState, cell as? CellView)
     }
 
     // Function to handle the calendar selection
@@ -143,17 +150,14 @@ class DaysViewController: UIViewController {
         }
     }
 
+    private func reloadCalendar() {
+        reloadCalendar(for: visibleDates?.monthDates.first?.date ?? Date())
+    }
+
     private func reloadCalendar(for date: Date) {
         calendarView.reloadData()
         calendarView.scrollToDate(date, animateScroll: false, preferredScrollPosition: nil, extraAddedOffset: 0) { [weak self] in
 
-        }
-    }
-
-    private func reloadCalendar() {
-        self.visibleDates = calendarView.visibleDates()
-        if let visibleDates = self.visibleDates {
-            setupViewsOfCalendar(from: visibleDates)
         }
     }
 
