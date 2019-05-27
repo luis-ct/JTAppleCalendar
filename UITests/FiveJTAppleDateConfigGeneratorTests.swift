@@ -156,6 +156,18 @@ class FiveJTAppleDateConfigGeneratorTests: XCTestCase {
         XCTAssertEqual(monthInfo.totalSections, totalSections)
         XCTAssertEqual(monthInfo.totalDays, totalDays)
         XCTAssertEqual(monthInfo.months.count, totalMonths)
+
+        let month = Month(startDayIndex: 0,
+                          startCellIndex: 0,
+                          sections: [25],
+                          inDates: 2,
+                          outDates: 0,
+                          sectionIndexMaps: [0: 0],
+                          rows: 5,
+                          name: .may,
+                          numberOfDaysInMonth: 23)
+
+        XCTAssertEqual(monthInfo.months[0], month)
     }
 
     func testdecMonthWithAllMonthsInDatesAndOffOutDates() {
