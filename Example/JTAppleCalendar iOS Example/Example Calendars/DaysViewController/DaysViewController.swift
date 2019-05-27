@@ -23,8 +23,8 @@ class DaysViewController: UIViewController {
     private var hasStrictBoundaries = true
 
     private var firstDatOfWeek :DaysOfWeek = .monday
-    private var week: Week = .seven
-    private var selectedSegmentIndex = 1
+    private var week: Week = .five
+    private var selectedSegmentIndex = 0
     private var visibleDates: DateSegmentInfo?
 
     override func viewDidLoad() {
@@ -89,7 +89,6 @@ class DaysViewController: UIViewController {
         let formatter = DateFormatter()
         formatter.dateFormat = "MMM"
         let month = formatter.string(from: date)
-//        print("\(month) \(cellState.text)")
 
         if testCalendar.isDateInToday(date) {
             myCustomCell.day.backgroundColor = .red

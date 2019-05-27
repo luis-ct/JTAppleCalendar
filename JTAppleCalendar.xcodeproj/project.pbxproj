@@ -17,6 +17,7 @@
 		50B13F0F228315A400C89E38 /* MonthlyScheduleViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50B13F072283157600C89E38 /* MonthlyScheduleViewCell.swift */; };
 		50B13F10228315A400C89E38 /* MonthlyScheduleViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 50B13F082283157600C89E38 /* MonthlyScheduleViewCell.xib */; };
 		50B13F112283165900C89E38 /* MonthlyScheduleViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 50B13F082283157600C89E38 /* MonthlyScheduleViewCell.xib */; };
+		50D53221229BDD5A00EB60E4 /* JTAppleCalendarViewTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50D53220229BDD5A00EB60E4 /* JTAppleCalendarViewTests.swift */; };
 		6B198EA91F41F06100442008 /* TestPersianCalendar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B198EA81F41F06100442008 /* TestPersianCalendar.swift */; };
 		6B198EAA1F41F06100442008 /* TestPersianCalendar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B198EA81F41F06100442008 /* TestPersianCalendar.swift */; };
 		6B19FCD4211ACAF8009C8C9B /* TestRangeSelectionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B19FCD2211ACABE009C8C9B /* TestRangeSelectionViewController.swift */; };
@@ -174,6 +175,7 @@
 		50B13F0022830E3D00C89E38 /* DaysViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DaysViewController.swift; sourceTree = "<group>"; };
 		50B13F072283157600C89E38 /* MonthlyScheduleViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MonthlyScheduleViewCell.swift; sourceTree = "<group>"; };
 		50B13F082283157600C89E38 /* MonthlyScheduleViewCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = MonthlyScheduleViewCell.xib; sourceTree = "<group>"; };
+		50D53220229BDD5A00EB60E4 /* JTAppleCalendarViewTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JTAppleCalendarViewTests.swift; sourceTree = "<group>"; };
 		6B198EA81F41F06100442008 /* TestPersianCalendar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestPersianCalendar.swift; sourceTree = "<group>"; };
 		6B19FCD2211ACABE009C8C9B /* TestRangeSelectionViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestRangeSelectionViewController.swift; sourceTree = "<group>"; };
 		6B4025F11DFB8CE40083E6AE /* Animation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Animation.swift; path = Animation/Animation.swift; sourceTree = "<group>"; };
@@ -543,6 +545,7 @@
 				6BD1933B1F73991400244060 /* Info.plist */,
 				509DF8AC2284185E000265E8 /* SevenJTAppleDateConfigGeneratorTests.swift */,
 				509DF8AE22842168000265E8 /* FiveJTAppleDateConfigGeneratorTests.swift */,
+				50D53220229BDD5A00EB60E4 /* JTAppleCalendarViewTests.swift */,
 			);
 			path = UITests;
 			sourceTree = "<group>";
@@ -1021,6 +1024,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				50D53221229BDD5A00EB60E4 /* JTAppleCalendarViewTests.swift in Sources */,
 				509DF8AD2284185E000265E8 /* SevenJTAppleDateConfigGeneratorTests.swift in Sources */,
 				509DF8AF22842168000265E8 /* FiveJTAppleDateConfigGeneratorTests.swift in Sources */,
 			);

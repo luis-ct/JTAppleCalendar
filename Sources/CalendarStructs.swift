@@ -250,7 +250,7 @@ public struct Month {
             let retval = variableNumber + inDates <= $0
             variableNumber -= $0
             return retval
-            }!
+            } ?? 0
         return (sectionIndexMaps.key(for: possibleSection)!, possibleSection)
     }
 
@@ -320,6 +320,7 @@ struct JTAppleDateConfigGenerator {
                         ()
                     }
                     var sectionsForTheMonth: [Int] = []
+
                     var sectionIndexMaps: [Int: Int] = [:]
                     for index in 0..<6 {
                         // Max number of sections in the month
@@ -436,7 +437,7 @@ struct JTAppleDateConfigGenerator {
     private func getMonthDays(calendar: Calendar, week: Week, date: Date) -> (seven: Int, five: Int) {
         switch week {
         case .five:
-            var sevenNumber = 0
+                var sevenNumber = 0
             var fiveNumber = 0
             var day: Int = 0
 

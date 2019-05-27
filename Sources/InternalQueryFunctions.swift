@@ -265,7 +265,7 @@ extension JTAppleCalendarView {
         for date in dates {
             if calendar.startOfDay(for: date) >= startOfMonthCache! && calendar.startOfDay(for: date) <= endOfMonthCache! {
                 let periodApart = calendar.dateComponents([.month], from: startOfMonthCache, to: date)
-                let day = calendar.dateComponents([.day], from: date).day!
+                let day = getDayComponent(from: date)
                 guard let monthSectionIndex = periodApart.month else { continue }
                 let currentMonthInfo = monthInfo[monthSectionIndex]
                 if let indexPath = currentMonthInfo.indexPath(forDay: day) {
@@ -275,7 +275,7 @@ extension JTAppleCalendarView {
         }
         return returnPaths
     }
-    
+
     func cellStateFromIndexPath(_ indexPath: IndexPath,
                                 withDateInfo info: (date: Date, owner: DateOwner)? = nil,
                                 cell: JTAppleCell? = nil,
@@ -477,6 +477,22 @@ extension JTAppleCalendarView {
 
         let retval = DateSegmentInfo(indates: inDates, monthDates: monthDates, outdates: outDates)
         return retval
+    }
+
+    private func getDayComponent(from date: Date) -> Int {
+        let day = calendar.dateComponents([.day], from: date).day ?? 0
+
+        switch _cachedConfiguration.week {
+        case .five:
+            var weekMonth = calendar.dateComponents([.weekOfMonth], from: date).weekOfMonth ?? 0
+            weekMonth -= 1
+
+            let fiveDay = day - (weekMonth * 2)
+
+            return fiveDay
+        case .seven:
+            return day
+        }
     }
 
 }

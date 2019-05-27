@@ -125,7 +125,7 @@ open class JTAppleCalendarView: UICollectionView {
         let retrievedPathsFromDates = pathsFromDates([date])
         if retrievedPathsFromDates.isEmpty { return retval }
         let sectionIndexPath = pathsFromDates([date])[0]
-        
+
         
         if calendarViewLayout.thereAreHeaders && scrollDirection == .vertical {
             let indexPath = IndexPath(item: 0, section: sectionIndexPath.section)

@@ -530,7 +530,7 @@ extension JTAppleCalendarView {
         let retrievedPathsFromDates = pathsFromDates([date])
         if retrievedPathsFromDates.isEmpty { return }
         let sectionIndexPath = pathsFromDates([date])[0]
-        
+
         guard let point = targetPointForItemAt(indexPath: sectionIndexPath) else {
             assert(false, "Could not determine CGPoint. This is an error. contact developer on github. In production, there will not be a crash, but scrolling will not occur")
             return
