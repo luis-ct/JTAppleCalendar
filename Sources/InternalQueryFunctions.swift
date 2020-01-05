@@ -23,6 +23,7 @@
 //
 
 extension JTAppleCalendarView {
+
     func validForwardAndBackwordSelectedIndexes(forIndexPath indexPath: IndexPath, restrictToSection: Bool = true) -> (forwardIndex: IndexPath?, backIndex: IndexPath?, set: Set<IndexPath>) {
         var retval: (forwardIndex: IndexPath?, backIndex: IndexPath?, set: Set<IndexPath>) = (forwardIndex: nil, backIndex: nil, set: [])
         if let validForwardIndex = calendarViewLayout.indexPath(direction: .next, of: indexPath.section, item: indexPath.item),
@@ -264,7 +265,7 @@ extension JTAppleCalendarView {
         for date in dates {
             if calendar.startOfDay(for: date) >= startOfMonthCache! && calendar.startOfDay(for: date) <= endOfMonthCache! {
                 let periodApart = calendar.dateComponents([.month], from: startOfMonthCache, to: date)
-                let day = calendar.dateComponents([.day], from: date).day!
+                let day = getDayComponent(from: date)
                 guard let monthSectionIndex = periodApart.month else { continue }
                 let currentMonthInfo = monthInfo[monthSectionIndex]
                 if let indexPath = currentMonthInfo.indexPath(forDay: day) {
@@ -274,7 +275,7 @@ extension JTAppleCalendarView {
         }
         return returnPaths
     }
-    
+
     func cellStateFromIndexPath(_ indexPath: IndexPath,
                                 withDateInfo info: (date: Date, owner: DateOwner)? = nil,
                                 cell: JTAppleCell? = nil,
@@ -339,8 +340,8 @@ extension JTAppleCalendarView {
             dateBelongsTo: dateBelongsTo,
             date: date,
             day: dayOfWeek,
-            row: { return indexPath.item / maxNumberOfDaysInWeek },
-            column: { return indexPath.item % maxNumberOfDaysInWeek },
+            row: { return indexPath.item / self._cachedConfiguration.week.value },
+            column: { return indexPath.item % self._cachedConfiguration.week.value },
             dateSection: { [unowned self] in
                 return self.monthInfoFromSection(indexPath.section)!
             },
@@ -377,36 +378,13 @@ extension JTAppleCalendarView {
         return nil
     }
     
-    func dateSegmentInfoFrom(visible indexPaths: [IndexPath]) -> DateSegmentInfo {
-        var inDates    = [(Date, IndexPath)]()
-        var monthDates = [(Date, IndexPath)]()
-        var outDates   = [(Date, IndexPath)]()
-        
-        for indexPath in indexPaths {
-            let info = dateOwnerInfoFromPath(indexPath)
-            if let validInfo = info  {
-                switch validInfo.owner {
-                case .thisMonth:
-                    monthDates.append((validInfo.date, indexPath))
-                case .previousMonthWithinBoundary, .previousMonthOutsideBoundary:
-                    inDates.append((validInfo.date, indexPath))
-                default:
-                    outDates.append((validInfo.date, indexPath))
-                }
-            }
-        }
-        
-        let retval = DateSegmentInfo(indates: inDates, monthDates: monthDates, outdates: outDates)
-        return retval
-    }
-    
     func dateOwnerInfoFromPath(_ indexPath: IndexPath) -> (date: Date, owner: DateOwner)? { // Returns nil if date is out of scope
         guard let monthIndex = monthMap[indexPath.section] else {
             return nil
         }
         let monthData = monthInfo[monthIndex]
         // Calculate the offset
-        let offSet: Int
+        var offSet: Int
         var numberOfDaysToAddToOffset: Int = 0
         switch monthData.sectionIndexMaps[indexPath.section]! {
         case 0:
@@ -417,17 +395,26 @@ extension JTAppleCalendarView {
             numberOfDaysToAddToOffset = monthData.sections[0..<currentSectionIndexMap].reduce(0, +)
             numberOfDaysToAddToOffset -= monthData.inDates
         }
-        
+
+        switch _cachedConfiguration.week {
+        case .five:
+            let row: Int = indexPath.item / _cachedConfiguration.week.value
+            offSet += row * 2
+            numberOfDaysToAddToOffset += (row * 2) * 2
+        case .seven:
+            ()
+        }
+
         var dayIndex = 0
         var dateOwner: DateOwner = .thisMonth
         let date: Date?
-        if indexPath.item >= offSet && indexPath.item + numberOfDaysToAddToOffset < monthData.numberOfDaysInMonth + offSet {
+        if indexPath.item + numberOfDaysToAddToOffset >= offSet && indexPath.item + numberOfDaysToAddToOffset <= monthData.numberOfDaysInMonth + offSet + numberOfDaysToAddToOffset {
             // This is a month date
             dayIndex = monthData.startDayIndex + indexPath.item - offSet + numberOfDaysToAddToOffset
             date = calendar.date(byAdding: .day, value: dayIndex, to: startOfMonthCache)
         } else if indexPath.item < offSet {
             // This is a preDate
-            dayIndex = indexPath.item - offSet  + monthData.startDayIndex
+            dayIndex = monthData.startDayIndex + indexPath.item - offSet
             date = calendar.date(byAdding: .day, value: dayIndex, to: startOfMonthCache)
             if date! < startOfMonthCache {
                 dateOwner = .previousMonthOutsideBoundary
@@ -445,6 +432,7 @@ extension JTAppleCalendarView {
             }
         }
         guard let validDate = date else { return nil }
+
         return (validDate, dateOwner)
     }
     
@@ -465,4 +453,46 @@ extension JTAppleCalendarView {
         let indexPaths: [IndexPath] = cellAttributes.map { $0.indexPath }.sorted()
         return dateSegmentInfoFrom(visible: indexPaths)
     }
+
+    // MARK: - Private
+
+    private func dateSegmentInfoFrom(visible indexPaths: [IndexPath]) -> DateSegmentInfo {
+        var inDates    = [(Date, IndexPath)]()
+        var monthDates = [(Date, IndexPath)]()
+        var outDates   = [(Date, IndexPath)]()
+
+        for indexPath in indexPaths {
+            let info = dateOwnerInfoFromPath(indexPath)
+            if let validInfo = info  {
+                switch validInfo.owner {
+                case .thisMonth:
+                    monthDates.append((validInfo.date, indexPath))
+                case .previousMonthWithinBoundary, .previousMonthOutsideBoundary:
+                    inDates.append((validInfo.date, indexPath))
+                default:
+                    outDates.append((validInfo.date, indexPath))
+                }
+            }
+        }
+
+        let retval = DateSegmentInfo(indates: inDates, monthDates: monthDates, outdates: outDates)
+        return retval
+    }
+
+    private func getDayComponent(from date: Date) -> Int {
+        let day = calendar.dateComponents([.day], from: date).day ?? 0
+
+        switch _cachedConfiguration.week {
+        case .five:
+            var weekMonth = calendar.dateComponents([.weekOfMonth], from: date).weekOfMonth ?? 0
+            weekMonth -= 1
+
+            let fiveDay = day - (weekMonth * 2)
+
+            return fiveDay
+        case .seven:
+            return day
+        }
+    }
+
 }

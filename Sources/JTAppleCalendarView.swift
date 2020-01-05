@@ -22,7 +22,6 @@
 //  THE SOFTWARE.
 //
 
-let maxNumberOfDaysInWeek = 7 // Should not be changed
 let maxNumberOfRowsPerMonth = 6 // Should not be changed
 let developerErrorMessage = "There was an error in this code section. Please contact the developer on GitHub"
 let decorationViewID = "Are you ready for the life after this one?"
@@ -126,7 +125,7 @@ open class JTAppleCalendarView: UICollectionView {
         let retrievedPathsFromDates = pathsFromDates([date])
         if retrievedPathsFromDates.isEmpty { return retval }
         let sectionIndexPath = pathsFromDates([date])[0]
-        
+
         
         if calendarViewLayout.thereAreHeaders && scrollDirection == .vertical {
             let indexPath = IndexPath(item: 0, section: sectionIndexPath.section)

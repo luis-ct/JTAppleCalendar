@@ -140,8 +140,10 @@ extension JTAppleCalendarView {
             if let
                 startMonth = calendar.startOfMonth(for: validConfig.startDate),
                 let endMonth = calendar.endOfMonth(for: validConfig.endDate) {
-                startOfMonthCache = startMonth
+
+                startOfMonthCache = normalize(date: startMonth, calendar: calendar, week: validConfig.week)
                 endOfMonthCache   = endMonth
+
                 // Create the parameters for the date format generator
                 let parameters = ConfigurationParameters(startDate: startOfMonthCache,
                                                          endDate: endOfMonthCache,
@@ -150,7 +152,8 @@ extension JTAppleCalendarView {
                                                          generateInDates: validConfig.generateInDates,
                                                          generateOutDates: validConfig.generateOutDates,
                                                          firstDayOfWeek: validConfig.firstDayOfWeek,
-                                                         hasStrictBoundaries: validConfig.hasStrictBoundaries)
+                                                         hasStrictBoundaries: validConfig.hasStrictBoundaries,
+                                                         week: validConfig.week)
                 
                 let generatedData = dateGenerator.setupMonthInfoDataForStartAndEndDate(parameters)
                 months = generatedData.months
@@ -162,7 +165,7 @@ extension JTAppleCalendarView {
         let data = CalendarData(months: months, totalSections: totalSections, sectionToMonthMap: monthMap, totalDays: totalDays)
         return data
     }
-    
+
     func batchReloadIndexPaths(_ indexPaths: [IndexPath]) {
         let visiblePaths = indexPathsForVisibleItems
         var visibleCellsToReload: [JTAppleCell: IndexPath] = [:]
@@ -253,6 +256,7 @@ extension JTAppleCalendarView {
                 newDateBoundary.generateOutDates    != _cachedConfiguration.generateOutDates ||
                 newDateBoundary.firstDayOfWeek      != _cachedConfiguration.firstDayOfWeek ||
                 newDateBoundary.hasStrictBoundaries != _cachedConfiguration.hasStrictBoundaries ||
+                newDateBoundary.week != _cachedConfiguration.week ||
                 // Other layout information were changed
                 minimumInteritemSpacing  != calendarLayout.minimumInteritemSpacing ||
                 minimumLineSpacing       != calendarLayout.minimumLineSpacing ||
@@ -268,8 +272,11 @@ extension JTAppleCalendarView {
         
         return retval
     }
-    
-    func remapSelectedDatesWithCurrentLayout() -> (selected:(indexPaths:[IndexPath], counterPaths:[IndexPath]), selectedDates: [Date]) {
+
+    /*
+     *  Not use
+     */
+    private func remapSelectedDatesWithCurrentLayout() -> (selected:(indexPaths:[IndexPath], counterPaths:[IndexPath]), selectedDates: [Date]) {
         var retval = (selected:(indexPaths:[IndexPath](), counterPaths:[IndexPath]()), selectedDates: [Date]())
         if !selectedDates.isEmpty {
             let selectedDates = self.selectedDates
@@ -299,4 +306,29 @@ extension JTAppleCalendarView {
         }
         return retval
     }
+
+    // MARK: - Private
+
+    /*
+     *  @Return: monday date if week is five and date is saturday or sunday
+     */
+    private func normalize(date: Date, calendar: Calendar, week: Week) -> Date {
+        var newDate = date
+        switch week {
+        case .five:
+            let firstWeekdayOfMonthIndex = calendar.component(.weekday, from: date)
+            if firstWeekdayOfMonthIndex == 1 {
+                // Sunday
+                newDate = calendar.date(byAdding: .day, value: 1, to: date) ?? date
+            } else if firstWeekdayOfMonthIndex == 7 {
+                // Saturday
+                newDate = calendar.date(byAdding: .day, value: 2, to: date) ?? date
+            }
+        case .seven:
+            ()
+        }
+
+        return newDate
+    }
+
 }
